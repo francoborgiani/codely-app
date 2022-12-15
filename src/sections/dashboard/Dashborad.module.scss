@@ -62,7 +62,7 @@
   }
 
   &__description {
-    display: box;
+    display: flex;
     overflow: hidden;
     text-overflow: ellipsis;
     -webkit-line-clamp: 2;

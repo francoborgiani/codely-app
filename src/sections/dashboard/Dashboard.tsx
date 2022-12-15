@@ -1,7 +1,9 @@
-import { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { LangContext } from "../../contexts/LangContext";
-import { InMemoryGithubRepositoryRepository } from "../../infraestructure/InMemoryGithubRepositoryRepository";
+import { devdashConfig } from "../../devdash_config";
+import { GitHubApiGitHubRepositoryRepository } from "../../infraestructure/GitHubApiGitHubRepositoryRepository";
+import { GitHubApiResponse } from "../../infraestructure/GitHubApiResponse";
 import { lang } from "../../lang/config";
 import { ReactComponent as Brand } from "./brand.svg";
 import { ReactComponent as Check } from "./check.svg";
@@ -31,11 +33,19 @@ const isoToReadableDate = (lastUpdate: string) => {
 	return `${diffDays} days ago`;
 };
 
-const repository = new InMemoryGithubRepositoryRepository();
-const repositories = repository.search();
+const repository = new GitHubApiGitHubRepositoryRepository(devdashConfig.github_access_token);
 
 export const Dashboard = () => {
 	const currentLang = useContext(LangContext);
+	const [githubApiResponse, setGithubApiResponse] = useState<GitHubApiResponse[]>([]);
+
+	useEffect(() => {
+		repository
+			.search(devdashConfig.widgets.map((widget) => widget.repositoryUrl))
+			.then((response) => setGithubApiResponse(response));
+	}, []);
+
+	console.log(githubApiResponse);//eslint-disable-line
 
 	return (
 		<>
@@ -46,17 +56,17 @@ export const Dashboard = () => {
 				</section>
 			</header>
 			<section className={styles.container}>
-				{repositories.map((repository) => (
+				{githubApiResponse.map((repository) => (
 					<article key={repository.repositoryData.id} className={styles.widget}>
 						<header className={styles.widget__header}>
 							<a
 								href={repository.repositoryData.html_url}
 								className={styles.widget__title}
 								target="_blank"
-								title={`${repository.repositoryData.organization.login}/${repository.repositoryData.name}`}
+								title={`${repository.repositoryData.owner.login}/${repository.repositoryData.name}`}
 								rel="noreferrer"
 							>
-								{repository.repositoryData.organization.login}/{repository.repositoryData.name}
+								{repository.repositoryData.owner.login}/{repository.repositoryData.name}
 							</a>
 							{repository.repositoryData.private ? <Lock /> : <Unlock />}
 						</header>

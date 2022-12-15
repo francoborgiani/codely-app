@@ -9,7 +9,7 @@ export interface DevDashConfig {
 }
 
 export const devdashConfig: DevDashConfig = {
-	github_access_token: process.env.GITHUB_ACCESS_TOKEN as string,
+	github_access_token: process.env.REACT_APP_GITHUB_ACCESS_TOKEN as string,
 	widgets: [
 		{
 			id: "1",

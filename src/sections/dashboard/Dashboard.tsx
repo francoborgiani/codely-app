@@ -1,16 +1,16 @@
 import { useContext } from "react";
 
 import { LangContext } from "../../contexts/LangContext";
-import { githubApiResponses } from "../../github_api_responses";
+import { InMemoryGithubRepositoryRepository } from "../../infraestructure/InMemoryGithubRepositoryRepository";
 import { lang } from "../../lang/config";
 import { ReactComponent as Brand } from "./brand.svg";
 import { ReactComponent as Check } from "./check.svg";
 import styles from "./Dashborad.module.scss";
 import { ReactComponent as Error } from "./error.svg";
-import { ReactComponent as Forks } from "./repo-forked.svg";
 import { ReactComponent as PullRequests } from "./git-pull-request.svg";
 import { ReactComponent as IssueOpened } from "./issue-opened.svg";
 import { ReactComponent as Lock } from "./lock.svg";
+import { ReactComponent as Forks } from "./repo-forked.svg";
 import { ReactComponent as Star } from "./star.svg";
 import { ReactComponent as Unlock } from "./unlock.svg";
 import { ReactComponent as Watchers } from "./watchers.svg";
@@ -31,6 +31,9 @@ const isoToReadableDate = (lastUpdate: string) => {
 	return `${diffDays} days ago`;
 };
 
+const repository = new InMemoryGithubRepositoryRepository();
+const repositories = repository.search();
+
 export const Dashboard = () => {
 	const currentLang = useContext(LangContext);
 
@@ -43,7 +46,7 @@ export const Dashboard = () => {
 				</section>
 			</header>
 			<section className={styles.container}>
-				{githubApiResponses.map((repository) => (
+				{repositories.map((repository) => (
 					<article key={repository.repositoryData.id} className={styles.widget}>
 						<header className={styles.widget__header}>
 							<a
@@ -51,6 +54,7 @@ export const Dashboard = () => {
 								className={styles.widget__title}
 								target="_blank"
 								title={`${repository.repositoryData.organization.login}/${repository.repositoryData.name}`}
+								rel="noreferrer"
 							>
 								{repository.repositoryData.organization.login}/{repository.repositoryData.name}
 							</a>
